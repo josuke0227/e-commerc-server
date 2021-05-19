@@ -7,6 +7,6 @@ module.exports = (app) => {
   app.use(morgan("dev"));
   app.use(bodyParser.json());
   process.env.NODE_ENV === "development" &&
-    app.use(cors({ origin: `http://localhost:3001` }));
+    app.use(cors({ origin: `http://192.168.0.8:3001` }));
   app.use("/api/signup", signup);
 };
