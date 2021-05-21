@@ -1,6 +1,7 @@
 const User = require("../models/user");
-const jwt = require("jsonwebtoken");
 const Joi = require("joi");
+const bcrypt = require("bcrypt");
+const _ = require("lodash");
 
 exports.signin = async (req, res) => {
   const { error } = validate(req.body);
@@ -10,20 +11,18 @@ exports.signin = async (req, res) => {
 
   if (!user) return res.status(400).send("Invalid email or password.");
 
-  const isValidPassword = user.authenticate(req.body.password);
-  if (!isValidPassword)
-    return res.status(400).send("Invalid email or password.");
+  const validPassword = await bcrypt.compare(req.body.password, user.password);
+  if (!validPassword) return res.status(400).send("Invalid email or password.");
 
-  const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-    expiresIn: "7d",
-  });
+  const token = user.generateAuthToken(
+    { _id: user._id },
+    process.env.JWT_SECRET
+  );
 
-  const { _id, name, email, role } = user;
-
-  res.json({
-    token,
-    user: { _id, name, email, role },
-  });
+  res
+    .status(200)
+    .header("x-auth-token", token)
+    .send(_.pick(user, ["_id", "email", "role"]));
 };
 
 function validate(req) {

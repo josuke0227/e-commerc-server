@@ -1,18 +1,15 @@
 const jwt = require("jsonwebtoken");
+const { OAuth2Client } = require("google-auth-library");
 const sgMail = require("@sendgrid/mail");
 const User = require("../models/user");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+// TODO: change the way of auth to mosh's.
 exports.signup = async (req, res) => {
   // TODO: verify email here too.
   const { email } = req.body;
-
-  try {
-    let user = await User.findOne({ email });
-    if (user) return res.status(400).send("Email is taken");
-  } catch (error) {
-    return res.status(500).send(error);
-  }
+  let user = await User.findOne({ email });
+  if (user) return res.status(400).send("Email is taken");
 
   const token = jwt.sign(
     {
@@ -46,3 +43,23 @@ exports.signup = async (req, res) => {
       `Activation Email has sent to "${email}". Please follow the instruction to activate your account.`
     );
 };
+
+// exports.googleSignup = async (req, res) => {
+//   const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+//   const { idToken } = req.body;
+
+//   client.verifyIdToken({ idToken, audience: process.env.GOOGLE_CLIENT_ID })
+//   .then(response => {
+//     const {email_verified, name, email} = response.payload;
+
+//     if (email_verified) {
+//       User.findOne({email}).exec((err, user) => {
+//         if (user) {
+//           const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+//             expiresIn:
+//           });
+//         }
+//       })
+//     }
+//   })
+// };

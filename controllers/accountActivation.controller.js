@@ -1,6 +1,8 @@
 const User = require("../models/user");
 const Joi = require("joi");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const _ = require("lodash");
 
 exports.accountActivation = async (req, res) => {
   const { error } = validateUser(req.body);
@@ -22,13 +24,18 @@ exports.accountActivation = async (req, res) => {
     return res.status(401).send("Expired link. Please signup again.");
   }
 
-  try {
-    const user = new User({ email, password });
-    await user.save();
-    res.status(200).send();
-  } catch (error) {
-    res.status(400).send("User is already registered.");
-  }
+  const user = new User({ email, password });
+  const salt = await bcrypt.genSalt(10);
+  user.password = await bcrypt.hash(user.password, salt);
+  await user.save();
+  const newToken = user.generateAuthToken(
+    { id: user._id, email },
+    process.env.JWT_SECRET
+  );
+  res
+    .status(200)
+    .header("x-auth-token", newToken)
+    .send(_.pick(user, ["_id", "email", "role"]));
 };
 
 function validateUser(user) {

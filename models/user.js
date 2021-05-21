@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
 
 const userSchema = new mongoose.Schema(
   {
@@ -14,57 +14,27 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    hashed_password: {
+    password: {
       type: String,
       required: true,
-      unique: true,
-    },
-    salt: String,
-    role: {
-      type: String,
-      default: "subscriber",
+      minlength: 3,
+      maxlength: 1024,
     },
     resetPasswordLink: {
       data: String,
       default: "",
     },
+    role: {
+      type: String,
+      default: "subscriber",
+    },
   },
   { timestamps: true }
 );
 
-userSchema
-  .virtual("password")
-  // TODO: convert funciton into arrow style
-  .set(function (password) {
-    this._password = password;
-    // TODO: switch makeSalt() function to 3rd party library
-    this.salt = this.makeSalt();
-    this.hashed_password = this.encryptPassword(password);
-  })
-  .get(function () {
-    return this._password;
-  });
-
-userSchema.methods = {
-  authenticate: function (plainText) {
-    return this.encryptPassword(plainText) === this.hashed_password;
-  },
-
-  encryptPassword: function (password) {
-    if (!password) return "";
-    try {
-      return crypto
-        .createHmac("sha1", this.salt)
-        .update(password)
-        .digest("hex");
-    } catch (err) {
-      return "";
-    }
-  },
-
-  makeSalt: function () {
-    return Math.round(new Date().valueOf() * Math.random()) + "";
-  },
+userSchema.methods.generateAuthToken = (payload, JWTkey, expirydate = "7d") => {
+  const token = jwt.sign(payload, JWTkey, { expiresIn: expirydate });
+  return token;
 };
 
 module.exports = mongoose.model("User", userSchema);
