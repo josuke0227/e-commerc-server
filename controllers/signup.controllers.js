@@ -3,11 +3,18 @@ const { OAuth2Client } = require("google-auth-library");
 const sgMail = require("@sendgrid/mail");
 const User = require("../models/user");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const _ = require("lodash");
+const bcrypt = require("bcrypt");
+const Joi = require("joi");
 
-// TODO: change the way of auth to mosh's.
 exports.signup = async (req, res) => {
-  // TODO: verify email here too.
+  const { error } = validate(req.body);
+  if (error) {
+    return res.status(400).send(error.details[0].message);
+  }
+
   const { email } = req.body;
+
   let user = await User.findOne({ email });
   if (user) return res.status(400).send("Email is taken");
 
@@ -44,22 +51,53 @@ exports.signup = async (req, res) => {
     );
 };
 
-// exports.googleSignup = async (req, res) => {
-//   const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-//   const { idToken } = req.body;
+exports.googleSignup = async (req, res) => {
+  const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+  const { idToken } = req.body;
 
-//   client.verifyIdToken({ idToken, audience: process.env.GOOGLE_CLIENT_ID })
-//   .then(response => {
-//     const {email_verified, name, email} = response.payload;
+  const { payload } = await client.verifyIdToken({
+    idToken,
+    audience: process.env.GOOGLE_CLIENT_ID,
+  });
 
-//     if (email_verified) {
-//       User.findOne({email}).exec((err, user) => {
-//         if (user) {
-//           const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-//             expiresIn:
-//           });
-//         }
-//       })
-//     }
-//   })
-// };
+  const isValidEmail = payload.email_verified;
+  if (!isValidEmail) {
+    return res.status(400).send("Invalid google account.");
+  }
+
+  const userExists = await User.findOne({ email: payload.email });
+  if (userExists) {
+    return res.status(400).send("Use with given email already regists.");
+  }
+
+  const userData = _.pick(payload, ["name", "email"]);
+  const salt = await bcrypt.genSalt(10);
+  userData.password = await bcrypt.hash(payload.email, salt);
+
+  try {
+    const user = new User(userData);
+    await user.save();
+
+    delete userData.password;
+    const token = user.generateAuthToken(userData, process.env.JWT_SECRET);
+    return res
+      .header("x-auth-token", token)
+      .send(_.pick(user, ["_id", "name", "email"]));
+  } catch (error) {
+    return res.status(400).send(error);
+  }
+};
+
+function validate(req) {
+  const schema = Joi.object({
+    email: Joi.string()
+      .email({
+        minDomainSegments: 2,
+        tlds: { allow: ["com", "net"] },
+      })
+      .required()
+      .label("Email"),
+  });
+
+  return schema.validate(req);
+}
