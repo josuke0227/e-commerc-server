@@ -67,7 +67,7 @@ exports.googleSignup = async (req, res) => {
 
   const userExists = await User.findOne({ email: payload.email });
   if (userExists) {
-    return res.status(400).send("Use with given email already regists.");
+    return res.status(400).send("Email is taken.");
   }
 
   const userData = _.pick(payload, ["name", "email"]);
