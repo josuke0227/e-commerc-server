@@ -72,6 +72,8 @@ exports.googleSignup = async (req, res) => {
   }
 
   const userData = _.pick(payload, ["name", "email"]);
+  userData.accountOrigin = "Google";
+  console.log(`userData`, userData);
   const salt = await bcrypt.genSalt(10);
   userData.password = await bcrypt.hash(payload.email, salt);
 
@@ -106,7 +108,8 @@ exports.facebookSignup = async (req, res) => {
 
     const salt = await bcrypt.genSalt(10);
     const password = await bcrypt.hash(email, salt);
-    const userData = { name, email, password };
+    const accountOrigin = "Facebook";
+    const userData = { name, email, password, accountOrigin };
 
     try {
       const user = new User(userData);

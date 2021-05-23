@@ -8,6 +8,11 @@ const userSchema = new mongoose.Schema(
       trim: true,
       max: 32,
     },
+    accountOrigin: {
+      type: String,
+      default: "original",
+      required: true,
+    },
     email: {
       type: String,
       trim: true,

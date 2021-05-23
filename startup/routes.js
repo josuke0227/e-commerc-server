@@ -14,6 +14,6 @@ module.exports = (app) => {
   NODE_ENV === "development" && app.use(cors({ origin: CLIENT_URL }));
   app.use("/api/signup", signup);
   app.use("/api/signin", signin);
-  // app.use("/api/accountactivation", accountActivation);
+  app.use("/api/accountactivation", accountActivation);
   // app.use("/api/forgotpassword", forgotPassword);
 };

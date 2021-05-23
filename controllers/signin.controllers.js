@@ -38,10 +38,16 @@ exports.googleSignin = async (req, res) => {
     });
 
     const user = await User.findOne({ email: payload.email });
+
     if (!user)
       return res
         .status(400)
         .send("Couldn't find user. Please signup or choose another account.");
+
+    if (user.accountOrigin !== "Google") {
+      const message = getSigninHint(user.accountOrigin);
+      return res.status(400).send(message);
+    }
 
     const token = user.generateAuthToken(
       { _id: user._id },
@@ -72,6 +78,11 @@ exports.facebookSignin = async (req, res) => {
         .send("Couldn't find user. Please signup or choose another account.");
     }
 
+    if (user.accountOrigin !== "Facebook") {
+      const message = getSigninHint(user.accountOrigin);
+      return res.status(400).send(message);
+    }
+
     const token = user.generateAuthToken(
       { _id: user._id },
       process.env.JWT_SECRET
@@ -85,6 +96,18 @@ exports.facebookSignin = async (req, res) => {
     return res.status(400).send("Login failded");
   }
 };
+
+function getSigninHint(accountOrigin) {
+  let accountType;
+
+  if (accountOrigin !== "original") {
+    accountType = `${accountOrigin} account.`;
+  } else {
+    accountType = "email / password";
+  }
+
+  return `Seems like you have registered with us using ${accountType}. Please try agan.`;
+}
 
 function validate(req) {
   const schema = Joi.object({
