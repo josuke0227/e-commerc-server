@@ -6,7 +6,6 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const _ = require("lodash");
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
-const fetch = require("node-fetch");
 const axios = require("axios");
 
 exports.signup = async (req, res) => {
@@ -124,57 +123,6 @@ exports.facebookSignup = async (req, res) => {
   } catch (error) {
     return res.status(400).send("Login failded");
   }
-
-  // data: {
-  //   id: '4880294735377160',
-  //   name: '本杉 洋介',
-  //   email: 'y.motosugi0227@gmail.com'
-  // }
-
-  // //  Change fetch method to axios.
-  // return axios(url, {
-  //   method: "GET",
-  // })
-  //   .then((response) => response.json())
-  //   .then((response) => {
-  //     const { email, name } = response;
-  //     User.findOne({ email }).exec((err, user) => {
-  //       if (user) {
-  //         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-  //           expiresIn: "7d",
-  //         });
-  //         const { _id, email, name, role } = user;
-  //         return res.json({
-  //           token,
-  //           user: { _id, email, name, role },
-  //         });
-  //       } else {
-  //         let password = email + process.env.JWT_SECRET;
-  //         user = new User({ name, email, password });
-  //         user.save((err, data) => {
-  //           if (err) {
-  //             console.log("ERROR FACEBOOK LOGIN ON USER SAVE", err);
-  //             return res.status(400).json({
-  //               error: "User signup failed with facebook",
-  //             });
-  //           }
-  //           const token = jwt.sign({ _id: data._id }, process.env.JWT_SECRET, {
-  //             expiresIn: "7d",
-  //           });
-  //           const { _id, email, name, role } = data;
-  //           return res.json({
-  //             token,
-  //             user: { _id, email, name, role },
-  //           });
-  //         });
-  //       }
-  //     });
-  //   })
-  //   .catch((error) => {
-  //     res.json({
-  //       error: "Facebook login failed. Try later",
-  //     });
-  //   });
 };
 
 function validate(req) {
