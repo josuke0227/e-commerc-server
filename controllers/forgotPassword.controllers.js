@@ -36,7 +36,7 @@ exports.forgotPassword = async (req, res) => {
     return res
       .status(200)
       .send(
-        `Email has been sent to ${email}. Follo the instruction to reset password.`
+        `Email has been sent to ${email}. Follow the instruction to reset password.`
       );
   } catch (error) {
     return res.status(500).send(error);
