@@ -42,14 +42,14 @@ exports.signup = async (req, res) => {
 
   try {
     await sgMail.send(emailData);
+    return res
+      .status(200)
+      .send(
+        `Activation Email has sent to "${email}". Please follow the instruction to activate your account.`
+      );
   } catch (error) {
     return res.status(500).send(error);
   }
-  res
-    .status(200)
-    .send(
-      `Activation Email has sent to "${email}". Please follow the instruction to activate your account.`
-    );
 };
 
 exports.googleSignup = async (req, res) => {
