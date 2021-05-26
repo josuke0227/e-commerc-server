@@ -12,7 +12,13 @@ const { NODE_ENV, CLIENT_URL } = process.env;
 module.exports = (app) => {
   app.use(morgan("dev"));
   app.use(bodyParser.json());
-  NODE_ENV === "development" && app.use(cors({ origin: CLIENT_URL }));
+  NODE_ENV === "development" &&
+    app.use(
+      cors({
+        origin: CLIENT_URL,
+        exposedHeaders: ["x-auth-token"],
+      })
+    );
   app.use("/api/signup", signup);
   app.use("/api/signin", signin);
   app.use("/api/accountactivation", accountActivation);
