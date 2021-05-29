@@ -5,10 +5,9 @@ const categorySchema = new mongoose.Schema(
     name: {
       type: String,
       trim: true,
-      // TODO: extract varidation logic
-      required: "Name is required",
-      minlength: [2, "Too short"],
-      maxlength: [32, "Toolong"],
+      required: true,
+      minlength: 1,
+      maxlength: 50,
     },
     slug: {
       type: String,

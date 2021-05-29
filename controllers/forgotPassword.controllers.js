@@ -2,12 +2,8 @@ const jwt = require("jsonwebtoken");
 const sgMail = require("@sendgrid/mail");
 const User = require("../models/user");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-const Joi = require("joi");
 
 exports.forgotPassword = async (req, res) => {
-  const { error } = validate(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
-
   let user = await User.findOne({ email: req.body.email });
   if (!user) return res.status(400).send("Email does not exist.");
 
@@ -42,17 +38,3 @@ exports.forgotPassword = async (req, res) => {
     return res.status(500).send(error);
   }
 };
-
-function validate(req) {
-  const schema = Joi.object({
-    email: Joi.string()
-      .email({
-        minDomainSegments: 2,
-        tlds: { allow: ["com", "net"] },
-      })
-      .required()
-      .label("Email"),
-  });
-
-  return schema.validate(req);
-}

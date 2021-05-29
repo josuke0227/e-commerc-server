@@ -32,8 +32,8 @@ exports.getAll = async (req, res) =>
 // };
 
 exports.update = async (req, res) => {
-  const { name } = req.body;
   try {
+    const { name } = req.body;
     const updated = await Category.findOneAndUpdate(
       { slug: req.params.slug },
       { name, slug: slugify(name) },
@@ -62,3 +62,11 @@ exports.remove = async (req, res) => {
 //     res.json(subs);
 //   });
 // };
+
+function validateCategory(category) {
+  const schema = Joi.object({
+    name: Joi.string().min(1).max(6),
+  });
+
+  return schema.validate(category);
+}

@@ -1,12 +1,8 @@
 const User = require("../models/user");
-const Joi = require("joi");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 exports.resetPassword = async (req, res) => {
-  const { error } = validateUser(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
-
   const { token, password: newPassword } = req.body;
 
   try {
@@ -24,23 +20,3 @@ exports.resetPassword = async (req, res) => {
     return res.status(400).send("Expired link. Try again");
   }
 };
-
-function validateUser(user) {
-  const schema = Joi.object({
-    email: Joi.string()
-      .email({
-        minDomainSegments: 2,
-        tlds: { allow: ["com", "net"] },
-      })
-      .required(),
-    password: Joi.string()
-      .pattern(new RegExp("^[a-zA-Z0-9]"))
-      .min(6)
-      .max(30)
-      .required(),
-    confirmingPassword: Joi.ref("password"),
-    token: Joi.string().required(),
-  });
-
-  return schema.validate(user);
-}

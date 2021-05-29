@@ -5,15 +5,9 @@ const User = require("../models/user");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const _ = require("lodash");
 const bcrypt = require("bcrypt");
-const Joi = require("joi");
 const axios = require("axios");
 
 exports.signup = async (req, res) => {
-  const { error } = validate(req.body);
-  if (error) {
-    return res.status(400).send(error.details[0].message);
-  }
-
   const { email } = req.body;
 
   let user = await User.findOne({ email });
@@ -127,17 +121,3 @@ exports.facebookSignup = async (req, res) => {
     return res.status(400).send("Login failded");
   }
 };
-
-function validate(req) {
-  const schema = Joi.object({
-    email: Joi.string()
-      .email({
-        minDomainSegments: 2,
-        tlds: { allow: ["com", "net"] },
-      })
-      .required()
-      .label("Email"),
-  });
-
-  return schema.validate(req);
-}
