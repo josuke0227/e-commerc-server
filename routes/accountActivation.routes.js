@@ -5,24 +5,20 @@ const {
   accountActivation,
 } = require("../controllers/accountActivation.controller");
 const validate = require("../middleware/validate");
+const {
+  emailSchema,
+  passwordSchema,
+  tokenSchema,
+} = require("../schemas/user.schemas");
 
 router.post("/", validate(validateUser), accountActivation);
 
 function validateUser(user) {
   const schema = Joi.object({
-    email: Joi.string()
-      .email({
-        minDomainSegments: 2,
-        tlds: { allow: ["com", "net"] },
-      })
-      .required(),
-    password: Joi.string()
-      .pattern(new RegExp("^[a-zA-Z0-9]"))
-      .min(6)
-      .max(30)
-      .required(),
+    email: emailSchema,
+    password: passwordSchema,
     confirmingPassword: Joi.ref("password"),
-    token: Joi.string().required(),
+    token: tokenSchema,
   });
 
   return schema.validate(user);

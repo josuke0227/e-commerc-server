@@ -1,25 +1,18 @@
 const Joi = require("joi");
 const express = require("express");
+const validate = require("../middleware/validate");
 const { resetPassword } = require("../controllers/resetPassword.controllers");
+const { passwordSchema } = require("../schemas/user.schemas");
 const router = express.Router();
 
-router.put("/", resetPassword);
+router.put("/", validate(validateUser), resetPassword);
 
 function validateUser(user) {
   const schema = Joi.object({
-    email: Joi.string()
-      .email({
-        minDomainSegments: 2,
-        tlds: { allow: ["com", "net"] },
-      })
-      .required(),
-    password: Joi.string()
-      .pattern(new RegExp("^[a-zA-Z0-9]"))
-      .min(6)
-      .max(30)
-      .required(),
+    email: emailSchema,
+    password: passwordSchema,
     confirmingPassword: Joi.ref("password"),
-    token: Joi.string().required(),
+    token: tokenSchema,
   });
 
   return schema.validate(user);

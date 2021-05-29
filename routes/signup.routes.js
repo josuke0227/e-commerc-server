@@ -7,6 +7,7 @@ const {
   facebookSignup,
 } = require("../controllers/signup.controllers");
 const validate = require("../middleware/validate");
+const { emailSchema } = require("../schemas/user.schemas");
 
 router.post("/", validate(validateEmail), signup);
 router.post("/googleaccount", googleSignup);
@@ -14,13 +15,7 @@ router.post("/facebookaccount", facebookSignup);
 
 function validateEmail(req) {
   const schema = Joi.object({
-    email: Joi.string()
-      .email({
-        minDomainSegments: 2,
-        tlds: { allow: ["com", "net"] },
-      })
-      .required()
-      .label("Email"),
+    email: emailSchema,
   });
 
   return schema.validate(req);

@@ -8,6 +8,7 @@ const {
   update,
   getAll,
 } = require("../controllers/categories.controller");
+const { nameSchema } = require("../schemas/user.schemas");
 
 router.get("/", getAll);
 router.post("/create", validate(validateCategory), create);
@@ -16,7 +17,7 @@ router.put("/update/:slug", validate(validateCategory), update);
 
 function validateCategory(category) {
   const schema = Joi.object({
-    name: Joi.string().min(1).max(6),
+    name: nameSchema,
   });
 
   return schema.validate(category);
