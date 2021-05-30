@@ -9,7 +9,10 @@ exports.create = async (req, res) => {
     const category = await new Category({ name, slug: slugify(name) }).save();
     res.status(200).send(category);
   } catch (error) {
-    console.log("Category create error", error);
+    console.log("Category create error", error.code);
+    if (error.code === 11000) {
+      return res.status(400).send("Given category name already exists.");
+    }
     res.status(400).send("Create category failed");
   }
 };
