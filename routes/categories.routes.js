@@ -17,7 +17,7 @@ router.put("/update/:slug", validate(validateCategory), update);
 
 function validateCategory(category) {
   const schema = Joi.object({
-    name: nameSchema,
+    name: Joi.string().min(1).max(50),
   });
 
   return schema.validate(category);
