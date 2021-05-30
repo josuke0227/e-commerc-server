@@ -7,7 +7,7 @@ exports.create = async (req, res) => {
   try {
     const { name } = req.body;
     const category = await new Category({ name, slug: slugify(name) }).save();
-    res.json(category);
+    res.status(200).send(category);
   } catch (error) {
     console.log("Category create error", error);
     res.status(400).send("Create category failed");
@@ -39,7 +39,7 @@ exports.update = async (req, res) => {
       { name, slug: slugify(name) },
       { new: true }
     );
-    res.json(updated);
+    res.status(200).send(updated);
   } catch (error) {
     console.log("Category update error", error);
     res.status(400).send("Category Update failed");
@@ -49,7 +49,8 @@ exports.update = async (req, res) => {
 exports.remove = async (req, res) => {
   try {
     const deleted = await Category.findOneAndDelete({ slug: req.params.slug });
-    res.json(deleted);
+    console.log(`deleted`, deleted);
+    res.status(200).send(deleted);
   } catch (error) {
     console.log("Category Remove error", error);
     res.status(400).send("Category deletion failed");
