@@ -1,26 +1,35 @@
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
-const _ = require("lodash");
 const { OAuth2Client } = require("google-auth-library");
 const axios = require("axios");
+const { pickUserCredential } = require("../util/controllers.util");
 
 exports.signin = async (req, res) => {
-  let user = await User.findOne({ email: req.body.email });
+  try {
+    const user = await User.findOne({ email: req.body.email });
 
-  if (!user) return res.status(400).send("Invalid email or password.");
+    if (!user) return res.status(400).send("Invalid email or password.");
 
-  const validPassword = await bcrypt.compare(req.body.password, user.password);
-  if (!validPassword) return res.status(400).send("Invalid email or password.");
+    const validPassword = await bcrypt.compare(
+      req.body.password,
+      user.password
+    );
 
-  const token = user.generateAuthToken(
-    { _id: user._id },
-    process.env.JWT_SECRET
-  );
+    if (!validPassword)
+      return res.status(400).send("Invalid email or password.");
 
-  res
-    .status(200)
-    .header("x-auth-token", token)
-    .send(_.pick(user, ["_id", "email", "role"]));
+    const token = user.generateAuthToken(
+      { ...pickUserCredential(user) },
+      process.env.JWT_SECRET
+    );
+
+    return res
+      .status(200)
+      .header("x-auth-token", token)
+      .send({ ...pickUserCredential(user) });
+  } catch (error) {
+    return res.status(400).send(error);
+  }
 };
 
 exports.googleSignin = async (req, res) => {
@@ -46,14 +55,14 @@ exports.googleSignin = async (req, res) => {
     }
 
     const token = user.generateAuthToken(
-      { _id: user._id },
+      { ...pickUserCredential(user) },
       process.env.JWT_SECRET
     );
 
-    res
+    return res
       .status(200)
       .header("x-auth-token", token)
-      .send(_.pick(user, ["_id", "email", "role"]));
+      .send({ ...pickUserCredential(user) });
   } catch (error) {
     return res.status(400).send(error);
   }
@@ -80,14 +89,14 @@ exports.facebookSignin = async (req, res) => {
     }
 
     const token = user.generateAuthToken(
-      { _id: user._id },
+      { ...pickUserCredential(user) },
       process.env.JWT_SECRET
     );
 
-    res
+    return res
       .status(200)
       .header("x-auth-token", token)
-      .send(_.pick(user, ["_id", "email", "role"]));
+      .send({ ...pickUserCredential(user) });
   } catch (error) {
     return res.status(400).send("Login failded");
   }

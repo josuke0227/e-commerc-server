@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const sgMail = require("@sendgrid/mail");
 const User = require("../models/user");
+const { pickUserCredential } = require("../util/controllers.util");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 exports.forgotPassword = async (req, res) => {
@@ -26,6 +27,8 @@ exports.forgotPassword = async (req, res) => {
       <p>${process.env.CLIENT_URL}</p>
     `,
   };
+
+  console.log(`token email sent`, token);
 
   try {
     await user.updateOne({ resetPasswordLink: token });

@@ -6,6 +6,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const _ = require("lodash");
 const bcrypt = require("bcrypt");
 const axios = require("axios");
+const { pickUserCredential } = require("../util/controllers.util");
 
 exports.signup = async (req, res) => {
   const { email } = req.body;
@@ -67,7 +68,6 @@ exports.googleSignup = async (req, res) => {
 
   const userData = _.pick(payload, ["name", "email"]);
   userData.accountOrigin = "Google";
-  console.log(`userData`, userData);
   const salt = await bcrypt.genSalt(10);
   userData.password = await bcrypt.hash(payload.email, salt);
 
@@ -75,11 +75,14 @@ exports.googleSignup = async (req, res) => {
     const user = new User(userData);
     await user.save();
 
-    delete userData.password;
-    const token = user.generateAuthToken(userData, process.env.JWT_SECRET);
+    const token = user.generateAuthToken(
+      { ...pickUserCredential(user) },
+      process.env.JWT_SECRET
+    );
     return res
+      .status(200)
       .header("x-auth-token", token)
-      .send(_.pick(user, ["_id", "name", "email"]));
+      .send({ ...pickUserCredential(user) });
   } catch (error) {
     return res.status(400).send(error);
   }
@@ -109,11 +112,14 @@ exports.facebookSignup = async (req, res) => {
       const user = new User(userData);
       await user.save();
 
-      delete userData.password;
-      const token = user.generateAuthToken(userData, process.env.JWT_SECRET);
+      const token = user.generateAuthToken(
+        { ...pickUserCredential(user) },
+        process.env.JWT_SECRET
+      );
       return res
+        .status(200)
         .header("x-auth-token", token)
-        .send(_.pick(user, ["_id", "name", "email"]));
+        .send({ ...pickUserCredential(user) });
     } catch (error) {
       return res.status(400).send(error);
     }
