@@ -8,12 +8,12 @@ const {
   update,
   getAll,
 } = require("../controllers/categories.controller");
-const { nameSchema } = require("../schemas/user.schemas");
+const adminRoute = require("../middleware/adminRoute");
 
 router.get("/", getAll);
-router.post("/create", validate(validateCategory), create);
-router.delete("/remove/:slug", remove);
-router.put("/update/:slug", validate(validateCategory), update);
+router.post("/create", [adminRoute, validate(validateCategory)], create);
+router.delete("/remove/:slug", adminRoute, remove);
+router.put("/update/:slug", [adminRoute, validate(validateCategory)], update);
 
 function validateCategory(category) {
   const schema = Joi.object({
