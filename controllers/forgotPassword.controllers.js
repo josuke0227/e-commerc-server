@@ -9,9 +9,14 @@ exports.forgotPassword = async (req, res) => {
 
   const { email } = req.body;
 
-  const token = jwt.sign({ email }, process.env.JWT_RESET_PASSWORD, {
-    expiresIn: "10m",
-  });
+  // TODO: use generateAuthToken here.
+  const token = user.generateAuthToken(
+    pickUserCredential(user),
+    process.env.JWT_RESET_PASSWORD
+  );
+  // const token = jwt.sign({ email }, process.env.JWT_RESET_PASSWORD, {
+  //   expiresIn: "10m",
+  // });
 
   const emailData = {
     from: process.env.EMAIL_FROM,
