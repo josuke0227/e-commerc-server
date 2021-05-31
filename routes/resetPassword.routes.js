@@ -2,7 +2,11 @@ const Joi = require("joi");
 const express = require("express");
 const validate = require("../middleware/validate");
 const { resetPassword } = require("../controllers/resetPassword.controllers");
-const { passwordSchema } = require("../schemas/user.schemas");
+const {
+  emailSchema,
+  passwordSchema,
+  tokenSchema,
+} = require("../schemas/user.schemas");
 const router = express.Router();
 
 router.put("/", validate(validateUser), resetPassword);
