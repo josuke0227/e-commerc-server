@@ -11,7 +11,7 @@ exports.create = async (req, res) => {
   } catch (error) {
     console.log("Category create error", error.code);
     if (error.code === 11000) {
-      return res.status(400).send("Given category name already exists.");
+      return res.status(400).send("Category already exists.");
     }
     res.status(400).send("Create category failed");
   }

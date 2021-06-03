@@ -12,8 +12,8 @@ const categorySchema = new mongoose.Schema(
     slug: {
       type: String,
       unique: true,
-      lowercase: true,
       index: true,
+      required: true,
     },
   },
   { timestamps: true }

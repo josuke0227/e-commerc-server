@@ -1,5 +1,6 @@
 const express = require("express");
 const Joi = require("joi");
+Joi.objectId = require("joi-objectid")(Joi);
 const router = express.Router();
 const validate = require("../middleware/validate");
 const {
@@ -7,21 +8,21 @@ const {
   remove,
   update,
   getAll,
-} = require("../controllers/categories.controllers");
+} = require("../controllers/subCategories.controllers");
 const adminRoute = require("../middleware/adminRoute");
 
 router.get("/", getAll);
-router.post("/", [adminRoute, validate(validateCategory)], create);
+router.post("/", [adminRoute, validate(validateSubCategory)], create);
+// TODO: rename endpont: /:slug
 router.delete("/:slug", adminRoute, remove);
-router.put("/:slug", [adminRoute, validate(validateCategory)], update);
+router.put("/:slug", [adminRoute, validate(validateSubCategory)], update);
 
-function validateCategory(category) {
+function validateSubCategory(category) {
   const schema = Joi.object({
     name: Joi.string().min(1).max(50),
-    slug: Joi.string().lowercase(),
+    parent: Joi.objectId(),
   });
 
   return schema.validate(category);
 }
-
 module.exports = router;
