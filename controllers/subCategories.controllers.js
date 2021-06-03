@@ -2,6 +2,8 @@ const SubCategory = require("../models/SubCategory");
 // const Product = require("../models/product");
 // const Sub = require("../models/sub");
 const slugify = require("slugify");
+const Joi = require("joi");
+Joi.ObjectId = require("joi-objectid")(Joi);
 
 exports.create = async (req, res) => {
   try {
@@ -21,9 +23,23 @@ exports.create = async (req, res) => {
 };
 
 // TODO: when to use exec()
-exports.getAll = async (req, res) =>
+exports.getSubCategories = async (req, res) =>
   res.json(await SubCategory.find({}).sort({ craeteAt: -1 }).exec());
 
+exports.pickByParentId = async (req, res) => {
+  const { parentId } = req.params;
+  const { error } = validateObjectId(parentId);
+
+  if (error) return res.status(400).send("Invalid request");
+
+  try {
+    const subCategories = await SubCategory.find({ parent: parentId });
+    res.status(200).send(subCategories);
+  } catch (error) {
+    console.log("sub category finding error", error);
+    res.send(400).send("Could not find sub categories.");
+  }
+};
 // exports.getOne = async (req, res) => {
 //   const subCategory = await SubCategory.findOne({
 //     slug: req.params.slug,
@@ -66,3 +82,9 @@ exports.remove = async (req, res) => {
     res.status(400).send("Category deletion failed");
   }
 };
+
+function validateObjectId(objectId) {
+  const schema = Joi.ObjectId().label("Parent id");
+
+  return schema.validate(objectId);
+}
