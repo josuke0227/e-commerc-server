@@ -18,12 +18,13 @@ router.post("/", [adminRoute, validate(validateSubCategory)], create);
 router.delete("/:slug", adminRoute, remove);
 router.put("/:slug", [adminRoute, validate(validateSubCategory)], update);
 
-function validateSubCategory(category) {
+function validateSubCategory(subCategory) {
   const schema = Joi.object({
     name: Joi.string().min(1).max(50),
-    parent: Joi.ObjectId(),
+    slug: Joi.string(),
+    parent: Joi.ObjectId().required(),
   });
 
-  return schema.validate(category);
+  return schema.validate(subCategory);
 }
 module.exports = router;
