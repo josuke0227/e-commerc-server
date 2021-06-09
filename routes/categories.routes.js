@@ -11,7 +11,7 @@ const {
 const adminRoute = require("../middleware/adminRoute");
 
 router.get("/", getAll);
-router.post("/", [adminRoute, validate(validateCategory)], create);
+router.post("/", [validate(validateCategory)], create);
 router.delete("/:slug", adminRoute, remove);
 router.put("/:slug", [adminRoute, validate(validateCategory)], update);
 

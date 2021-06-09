@@ -8,6 +8,7 @@ const forgotPassword = require("../routes/forgotPassword.routes");
 const resetPassword = require("../routes/resetPassword.routes");
 const categories = require("../routes/categories.routes");
 const subCategories = require("../routes/subCategories.routes");
+const products = require("../routes/products.routes");
 
 const { NODE_ENV, CLIENT_URL } = process.env;
 
@@ -28,4 +29,5 @@ module.exports = (app) => {
   app.use("/api/resetPassword", resetPassword);
   app.use("/api/categories", categories);
   app.use("/api/subcategories", subCategories);
+  app.use("/api/products", products);
 };
