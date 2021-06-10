@@ -9,12 +9,13 @@ const resetPassword = require("../routes/resetPassword.routes");
 const categories = require("../routes/categories.routes");
 const subCategories = require("../routes/subCategories.routes");
 const products = require("../routes/products.routes");
+const images = require("../routes/cloudinary.routes");
 
 const { NODE_ENV, CLIENT_URL } = process.env;
 
 module.exports = (app) => {
   app.use(morgan("dev"));
-  app.use(bodyParser.json());
+  app.use(bodyParser.json({ limit: "2mb" }));
   NODE_ENV === "development" &&
     app.use(
       cors({
@@ -30,4 +31,5 @@ module.exports = (app) => {
   app.use("/api/categories", categories);
   app.use("/api/subcategories", subCategories);
   app.use("/api/products", products);
+  app.use("/api/images", images);
 };
