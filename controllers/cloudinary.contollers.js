@@ -1,4 +1,5 @@
 const cloudinary = require("cloudinary");
+const Image = require("../models/image");
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_COUD_NAME,
@@ -7,15 +8,24 @@ cloudinary.config({
 });
 
 exports.upload = async (req, res) => {
+  const { imageUri, productId, postedBy } = req.body;
+
   try {
-    const result = await cloudinary.uploader.upload(req.body.image, {
+    const result = await cloudinary.uploader.upload(imageUri, {
       public_id: `${Date.now()}`,
       resoure_type: "auto",
     });
-    res.json({
+
+    const imageData = {
       public_id: result.public_id,
-      url: result.secure_url,
-    });
+      url: result.url,
+      productId,
+      postedBy,
+    };
+
+    const image = new Image(imageData).save();
+
+    res.status(200).send(image);
   } catch (error) {
     res;
     console.log("cloudinary image uploading error", error);
