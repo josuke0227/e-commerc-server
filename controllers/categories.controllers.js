@@ -59,18 +59,3 @@ exports.remove = async (req, res) => {
     res.status(400).send("Category deletion failed");
   }
 };
-
-// exports.getSubs = (req, res) => {
-//   Sub.find({ parent: req.params._id }).exec((err, subs) => {
-//     if (err) console.log(err);
-//     res.json(subs);
-//   });
-// };
-
-function validateCategory(category) {
-  const schema = Joi.object({
-    name: Joi.string().min(1).max(6),
-  });
-
-  return schema.validate(category);
-}
