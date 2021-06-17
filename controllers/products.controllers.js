@@ -86,10 +86,21 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
   try {
-    const deleted = await Product.findByIdAndRemove({
+    const deletedImages = await Product.findByIdAndDelete({
+      productId: req.body.id,
+    });
+
+    if (deletedImages === null) return;
+    deletedImages.forEach((i) =>
+      cloudinary.uploader.destroy(i.image_id, (err, result) => {
+        if (err) return res.status(400).json({ success: false, err });
+      })
+    );
+
+    const deletedProduct = await Product.findOneAndDelete({
       slug: req.params.slug,
     }).exec();
-    res.status(200).send(deleted);
+    res.status(200).send(deletedProduct);
   } catch (error) {
     console.log("error occured at delete function", error);
     res.status(400).send("Product delete failed.");
