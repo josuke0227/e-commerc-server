@@ -43,3 +43,16 @@ exports.remove = async (req, res) => {
     return res.status(400).send(result);
   });
 };
+
+exports.images = async (req, res) => {
+  const { productId } = req.params;
+  const images = await Image.find({ productId });
+  if (images === null) {
+    res.status(200).send([
+      {
+        url: "https://res.cloudinary.com/ymotoe-commerce/image/upload/v1623311194/h1hrgytgfzwikeln2rng.jpg",
+      },
+    ]);
+    return;
+  } else return res.status(200).send(images);
+};
