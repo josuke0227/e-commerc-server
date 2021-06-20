@@ -16,7 +16,7 @@ const variationSchema = new mongoose.Schema(
       required: true,
     },
     instances: {
-      type: [String],
+      type: [Object],
       required: true,
     },
   },
