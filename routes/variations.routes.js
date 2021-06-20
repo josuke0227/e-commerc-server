@@ -17,7 +17,9 @@ router.delete("/:slug", remove);
 function validateVariation(variation) {
   const schema = Joi.object({
     name: Joi.string().min(1).max(50),
-    instances: Joi.array().items(Joi.string()),
+    instances: Joi.array().items(
+      Joi.object({ index: Joi.number(), name: Joi.string() })
+    ),
   });
 
   return schema.validate(variation);
