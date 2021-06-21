@@ -35,8 +35,8 @@ exports.upload = async (req, res) => {
 exports.remove = async (req, res) => {
   const image_id = req.body.public_id;
 
-  cloudinary.uploader.destroy(image_id, ({ result }) => {
-    if (result === "ok") {
+  cloudinary.uploader.destroy(image_id, (result) => {
+    if (result.result === "ok") {
       return res.status(200).send("Image deleted successfully.");
     }
 
@@ -47,12 +47,12 @@ exports.remove = async (req, res) => {
 exports.images = async (req, res) => {
   const { productId } = req.params;
   const images = await Image.find({ productId });
-  if (images === null) {
-    res.status(200).send([
+  console.log(images);
+  if (!images.length) {
+    return res.status(200).send([
       {
         url: "https://res.cloudinary.com/ymotoe-commerce/image/upload/v1623311194/h1hrgytgfzwikeln2rng.jpg",
       },
     ]);
-    return;
   } else return res.status(200).send(images);
 };

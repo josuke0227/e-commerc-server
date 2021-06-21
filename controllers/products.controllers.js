@@ -1,5 +1,14 @@
 const Product = require("../models/product");
+const Image = require("../models/image");
 const slugify = require("slugify");
+
+const cloudinary = require("cloudinary");
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_COUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 exports.create = async (req, res) => {
   console.log(req.body);
@@ -85,24 +94,33 @@ exports.update = async (req, res) => {
 };
 
 exports.delete = async (req, res) => {
+  const productId = req.body.id;
+
   try {
-    const deletedImages = await Product.findByIdAndDelete({
-      productId: req.body.id,
-    });
+    const product = await Product.findById(productId);
+    if (product === null) {
+      return res.status(400).send("Product not found.");
+    }
 
-    if (deletedImages === null) return;
-    deletedImages.forEach((i) =>
-      cloudinary.uploader.destroy(i.image_id, (err, result) => {
-        if (err) return res.status(400).json({ success: false, err });
-      })
-    );
+    const images = await Image.find({ productId });
+    if (images.length) {
+      for (let i of images) {
+        cloudinary.uploader.destroy(i.public_id, (result) => {
+          console.log(`result`, result);
+          if (result.result !== "ok") {
+            return res.status(400).send(result);
+          }
+        });
+      }
+      await Image.deleteOne({ productId });
+    }
 
-    const deletedProduct = await Product.findOneAndDelete({
+    const removedProduct = await Product.findOneAndDelete({
       slug: req.params.slug,
-    }).exec();
-    res.status(200).send(deletedProduct);
+    });
+    return res.status(200).send(removedProduct);
   } catch (error) {
-    console.log("error occured at delete function", error);
-    res.status(400).send("Product delete failed.");
+    console.log("error occurred at delete function", error);
+    return res.status(400).send("Product delete failed.");
   }
 };
