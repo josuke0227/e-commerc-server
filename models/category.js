@@ -11,6 +11,7 @@ const categorySchema = new mongoose.Schema(
     },
     slug: {
       type: String,
+      lowercase: true,
       unique: true,
       index: true,
       required: true,
