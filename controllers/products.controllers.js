@@ -49,7 +49,7 @@ exports.products = async (req, res) => {
 exports.product = async (req, res) => {
   const product = await Product.findOne({ slug: req.params.slug })
     .populate("category")
-    .populate("subCategori")
+    .populate("subCategory")
     .exec();
   res.status(200).send(product);
 };
