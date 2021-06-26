@@ -9,7 +9,7 @@ const {
 } = require("../controllers/cloudinary.contollers");
 
 router.post("/upload", adminRoute, upload);
-router.post("/remove", adminRoute, remove);
+router.delete("/:public_id", adminRoute, remove);
 router.get("/:productId", adminRoute, images);
 
 module.exports = router;
