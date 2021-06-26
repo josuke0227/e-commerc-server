@@ -13,7 +13,7 @@ exports.upload = async (req, res) => {
   try {
     const result = await cloudinary.uploader.upload(imageUri, {
       public_id: `${Date.now()}`,
-      resoure_type: "auto",
+      resource_type: "auto",
     });
 
     const imageData = {
@@ -33,21 +33,30 @@ exports.upload = async (req, res) => {
 };
 
 exports.remove = async (req, res) => {
-  const image_id = req.body.public_id;
+  const { public_id } = req.params;
 
-  cloudinary.uploader.destroy(image_id, (result) => {
-    if (result.result === "ok") {
-      return res.status(200).send("Image deleted successfully.");
+  try {
+    const image = await Image.find({ public_id });
+    if (!image.length) {
+      return res.status(400).send("Image does not exist.");
     }
 
-    return res.status(400).send(result);
-  });
+    cloudinary.uploader.destroy(public_id, async (result) => {
+      if (result.result === "ok") {
+        await Image.deleteOne({ public_id });
+        return res.status(200).send("Image deleted successfully.");
+      }
+
+      return res.status(400).send(result);
+    });
+  } catch (error) {
+    return res.status(400).send(error);
+  }
 };
 
 exports.images = async (req, res) => {
   const { productId } = req.params;
   const images = await Image.find({ productId });
-  console.log(images);
   if (!images.length) {
     return res.status(200).send([
       {
