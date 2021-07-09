@@ -10,6 +10,6 @@ const {
 
 router.post("/upload", adminRoute, upload);
 router.delete("/:public_id", adminRoute, remove);
-router.get("/:productId", adminRoute, images);
+router.get("/:productId", images);
 
 module.exports = router;

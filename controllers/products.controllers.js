@@ -11,8 +11,6 @@ cloudinary.config({
 });
 
 exports.create = async (req, res) => {
-  console.log(req.body);
-
   try {
     req.body.slug = slugify(req.body.title);
     console.log(`req.body.slug`, req.body.slug);
