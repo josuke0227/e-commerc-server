@@ -1,4 +1,5 @@
 const Product = require("../models/product");
+const User = require("../models/user");
 const Image = require("../models/image");
 const slugify = require("slugify");
 
@@ -122,3 +123,48 @@ exports.delete = async (req, res) => {
     return res.status(400).send("Product delete failed.");
   }
 };
+
+exports.rating = async (req, res) => {
+  const { rate, user } = req.body;
+  const updatingProduct = await Product.findById(req.params.productId);
+  const postedBy = await User.findById(user.id);
+  const data = { rate, postedBy: postedBy._id };
+  const existingRatingData = findRating(updatingProduct, user.id);
+
+  try {
+    if (existingRatingData) {
+      await Product.updateOne(
+        {
+          ratings: { $elemMatch: existingRatingData },
+        },
+        {
+          $set: { "ratings.$.rate": rate },
+        },
+        { new: true }
+      );
+      res.status(200).send();
+    } else {
+      await Product.findByIdAndUpdate(
+        updatingProduct._id,
+        {
+          $push: { ratings: { ...data } },
+        },
+        {
+          new: true,
+        }
+      );
+      res.status(200).send();
+    }
+  } catch (error) {
+    res.status(400).json("Rating failed.");
+  }
+};
+
+function findRating(product, userId) {
+  let result;
+  result = product.ratings.find(
+    (r) => r.postedBy.toString() === userId.toString()
+  );
+
+  return result;
+}

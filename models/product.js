@@ -48,13 +48,13 @@ const productSchema = new mongoose.Schema(
     },
     ratings: [
       {
-        start: Number,
+        rate: Number,
         postedBy: { type: ObjectId, ref: "User" },
       },
     ],
   },
   {
-    timestams: true,
+    timestamps: true,
   }
 );
 
