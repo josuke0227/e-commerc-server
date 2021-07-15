@@ -160,6 +160,59 @@ exports.rating = async (req, res) => {
   }
 };
 
+exports.filterByAttribute = async (req, res) => {
+  const [{ name }, data] = req.body;
+  try {
+    const query =
+      name === "variations"
+        ? createVariantQuery(name, data)
+        : createQuery(name, data);
+    const products =
+      name === "ratings"
+        ? await getProductsByRating(data)
+        : await getProductsByQuery(query);
+    res.status(200).send(products);
+  } catch (error) {
+    console.log("Category filtering error", error);
+    res.status(400).send("Category filtering error");
+  }
+};
+
+async function getProductsByQuery(query) {
+  const products = await Product.find({
+    $or: [...query],
+  })
+    .populate("category", "_id name")
+    .populate("subs", "_id name")
+    .populate("postedBy", "_id name")
+    .exec();
+  return products;
+}
+
+async function getProductsByRating(data) {
+  const rate = data[0].value;
+  const products = await Product.find({
+    "ratings.rate": { $gte: rate },
+  })
+    .populate("category", "_id name")
+    .populate("subs", "_id name")
+    .populate("postedBy", "_id name")
+    .exec();
+  return products;
+}
+
+function createVariantQuery(attrName, data) {
+  return data.map(({ name, data }) => ({
+    [`${attrName}.${name}`]: { ...data },
+  }));
+}
+
+function createQuery(name, data) {
+  return data.map(({ data }) => ({
+    [name]: { ...data },
+  }));
+}
+
 function findRating(product, userId) {
   let result;
   result = product.ratings.find(

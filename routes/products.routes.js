@@ -12,6 +12,7 @@ const {
   product,
   delete: deleteProduct,
   rating,
+  filterByAttribute,
 } = require("../controllers/products.controllers");
 
 router.post("/", adminRoute, create);
@@ -20,5 +21,6 @@ router.get("/:slug", product);
 router.put("/:slug", adminRoute, update);
 router.put("/rating/:productId", userRoute, rating);
 router.delete("/:slug", adminRoute, deleteProduct);
+router.post("/search/attributes", filterByAttribute);
 
 module.exports = router;
