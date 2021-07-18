@@ -1,0 +1,23 @@
+const mongoose = require("mongoose");
+
+const brandSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      trim: true,
+      required: true,
+      minLength: 1,
+      maxLength: 50,
+    },
+    slug: {
+      type: String,
+      lowercase: true,
+      unique: true,
+      index: true,
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
+
+module.exports = mongoose.model("Brand", brandSchema);

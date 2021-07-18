@@ -11,6 +11,7 @@ const subCategories = require("../routes/subCategories.routes");
 const products = require("../routes/products.routes");
 const images = require("../routes/cloudinary.routes");
 const variations = require("../routes/variations.routes");
+const brands = require("../routes/brands.routes");
 
 const { NODE_ENV, CLIENT_URL } = process.env;
 
@@ -30,6 +31,7 @@ module.exports = (app) => {
   app.use("/api/forgotpassword", forgotPassword);
   app.use("/api/resetPassword", resetPassword);
   app.use("/api/categories", categories);
+  app.use("/api/brands", brands);
   app.use("/api/subcategories", subCategories);
   app.use("/api/products", products);
   app.use("/api/images", images);
