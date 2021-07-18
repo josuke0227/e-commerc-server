@@ -43,7 +43,8 @@ const productSchema = new mongoose.Schema(
       default: 0,
     },
     brand: {
-      type: String,
+      type: ObjectId,
+      ref: "Brand",
     },
     ratings: [
       {

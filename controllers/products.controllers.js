@@ -40,6 +40,7 @@ exports.products = async (req, res) => {
     .limit(parseInt(req.params.cont))
     .populate("category")
     .populate("subCategory")
+    .populate("brand")
     .sort([["createdAt", "desc"]])
     .exec();
   res.status(200).send(products);
@@ -49,6 +50,7 @@ exports.product = async (req, res) => {
   const product = await Product.findOne({ slug: req.params.slug })
     .populate("category")
     .populate("subCategory")
+    .populate("brand")
     .exec();
   res.status(200).send(product);
 };
@@ -63,6 +65,7 @@ exports.productList = async (req, res) => {
       .skip((currentPage - 1) * perPage)
       .populate("category")
       .populate("subCategory")
+      .populate("brand")
       .sort([[sort, order]])
       .limit(perPage)
       .exec();
@@ -183,7 +186,8 @@ async function getProductsByQuery(query) {
     $or: [...query],
   })
     .populate("category", "_id name")
-    .populate("subs", "_id name")
+    .populate("subCategory", "_id name")
+    .populate("brand", "_id name")
     .populate("postedBy", "_id name")
     .exec();
   return products;
@@ -195,7 +199,8 @@ async function getProductsByRating(data) {
     "ratings.rate": { $gte: rate },
   })
     .populate("category", "_id name")
-    .populate("subs", "_id name")
+    .populate("subCategory", "_id name")
+    .populate("brand", "_id name")
     .populate("postedBy", "_id name")
     .exec();
   return products;
