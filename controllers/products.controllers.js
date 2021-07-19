@@ -165,7 +165,17 @@ exports.rating = async (req, res) => {
 
 exports.filterByAttribute = async (req, res) => {
   const [{ name }, data] = req.body;
-  console.log(name, data);
+
+  if (name === "price") {
+    try {
+      const products = await getProductsByPrice(data);
+      return res.status(200).send(products);
+    } catch (error) {
+      console.log("Price filtering error", error);
+      return res.status(400).send("Price filtering error");
+    }
+  }
+
   try {
     const query =
       name === "variations"
@@ -177,14 +187,29 @@ exports.filterByAttribute = async (req, res) => {
         : await getProductsByQuery(query);
     res.status(200).send(products);
   } catch (error) {
-    console.log("Category filtering error", error);
-    res.status(400).send("Category filtering error");
+    console.log(`${name} filtering error`, error);
+    res.status(400).send(`${name} filtering error`);
   }
 };
 
 async function getProductsByQuery(query) {
   const products = await Product.find({
     $or: [...query],
+  })
+    .populate("category", "_id name")
+    .populate("subCategory", "_id name")
+    .populate("brand", "_id name")
+    .populate("postedBy", "_id name")
+    .exec();
+  return products;
+}
+
+async function getProductsByPrice(data) {
+  const min = data[0];
+  const max = data[1];
+
+  const products = await Product.find({
+    price: { $gte: min, $lte: max },
   })
     .populate("category", "_id name")
     .populate("subCategory", "_id name")
