@@ -165,6 +165,7 @@ exports.rating = async (req, res) => {
 
 exports.filterByAttribute = async (req, res) => {
   const [{ name }, data] = req.body;
+  console.log(name, data);
   try {
     const query =
       name === "variations"
@@ -213,7 +214,7 @@ function createVariantQuery(attrName, data) {
 }
 
 function createQuery(name, data) {
-  return data.map(({ data }) => ({
+  return data.map((data) => ({
     [name]: { ...data },
   }));
 }
