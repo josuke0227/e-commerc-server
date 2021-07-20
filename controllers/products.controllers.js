@@ -164,84 +164,68 @@ exports.rating = async (req, res) => {
 };
 
 exports.filterByAttribute = async (req, res) => {
-  const [{ name }, data] = req.body;
-
-  if (name === "price") {
-    try {
-      const products = await getProductsByPrice(data);
-      return res.status(200).send(products);
-    } catch (error) {
-      console.log("Price filtering error", error);
-      return res.status(400).send("Price filtering error");
-    }
-  }
-
-  try {
-    const query =
-      name === "variations"
-        ? createVariantQuery(name, data)
-        : createQuery(name, data);
-    const products =
-      name === "ratings"
-        ? await getProductsByRating(data)
-        : await getProductsByQuery(query);
-    res.status(200).send(products);
-  } catch (error) {
-    console.log(`${name} filtering error`, error);
-    res.status(400).send(`${name} filtering error`);
-  }
+  const clientData = req.body;
+  const query = createQuery(clientData);
+  const products = await Product.find({ $and: [...query] })
+    .populate("category", "_id name")
+    .populate("subCategory", "_id name")
+    .populate("brand", "_id name")
+    .populate("postedBy", "_id name")
+    .exec();
+  res.send(products);
 };
 
-async function getProductsByQuery(query) {
-  const products = await Product.find({
-    $or: [...query],
-  })
-    .populate("category", "_id name")
-    .populate("subCategory", "_id name")
-    .populate("brand", "_id name")
-    .populate("postedBy", "_id name")
-    .exec();
-  return products;
+function createQuery(clientData) {
+  let query = [];
+  for (let i = 0; i < clientData.length; i++) {
+    if (i % 2 === 0) {
+      const name = clientData[i];
+      const data = clientData[i + 1];
+      if (name === "variations") {
+        data.forEach((d) => query.push(createVariationsQuery(d)));
+        continue;
+      }
+
+      if (name === "price") {
+        query.push(createPriceQuery(data));
+        continue;
+      }
+
+      if (data.length > 1) {
+        query = [...query, { $or: data.map((d) => ({ [name]: d })) }];
+        continue;
+      }
+
+      if (name === "ratings") {
+        query.push(createRatingQuery(data));
+        continue;
+      }
+      query.push({ [name]: data[0] });
+    }
+  }
+  return query;
 }
 
-async function getProductsByPrice(data) {
+function createVariationsQuery(value) {
+  const { name, data } = value;
+  return {
+    [`variations.${name}`]: { ...data },
+  };
+}
+
+function createPriceQuery(data) {
   const min = data[0];
   const max = data[1];
-
-  const products = await Product.find({
+  return {
     price: { $gte: min, $lte: max },
-  })
-    .populate("category", "_id name")
-    .populate("subCategory", "_id name")
-    .populate("brand", "_id name")
-    .populate("postedBy", "_id name")
-    .exec();
-  return products;
+  };
 }
 
-async function getProductsByRating(data) {
-  const rate = data[0].value;
-  const products = await Product.find({
-    "ratings.rate": { $gte: rate },
-  })
-    .populate("category", "_id name")
-    .populate("subCategory", "_id name")
-    .populate("brand", "_id name")
-    .populate("postedBy", "_id name")
-    .exec();
-  return products;
-}
-
-function createVariantQuery(attrName, data) {
-  return data.map(({ name, data }) => ({
-    [`${attrName}.${name}`]: { ...data },
-  }));
-}
-
-function createQuery(name, data) {
-  return data.map((data) => ({
-    [name]: { ...data },
-  }));
+function createRatingQuery(data) {
+  const [{ value }] = data;
+  return {
+    "ratings.rate": { $gte: value },
+  };
 }
 
 function findRating(product, userId) {
