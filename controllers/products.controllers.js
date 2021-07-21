@@ -166,6 +166,10 @@ exports.rating = async (req, res) => {
 exports.filterByAttribute = async (req, res) => {
   const clientData = req.body;
   const query = createQuery(clientData);
+  console.log(`query`, query);
+  if (!query.length) {
+    return await exports.products(req, res);
+  }
   const products = await Product.find({ $and: [...query] })
     .populate("category", "_id name")
     .populate("subCategory", "_id name")
