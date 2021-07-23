@@ -165,6 +165,7 @@ exports.rating = async (req, res) => {
 
 exports.filterByAttribute = async (req, res) => {
   const clientData = req.body;
+  console.log(`clientData`, clientData);
   const query = createQuery(clientData);
   console.log(`query`, query);
   if (!query.length) {
@@ -192,6 +193,11 @@ function createQuery(clientData) {
 
       if (name === "price") {
         query.push(createPriceQuery(data));
+        continue;
+      }
+
+      if (name === "text") {
+        query = [...query, { $text: { $search: data[0].value } }];
         continue;
       }
 
