@@ -57,10 +57,19 @@ exports.product = async (req, res) => {
 
 exports.productsList = async (req, res) => {
   try {
-    const { sort, order, page, itemsPerPage } = req.body;
+    const {
+      sort,
+      order,
+      page,
+      itemsPerPage,
+      query: clientData = [],
+    } = req.body;
     const currentPage = page || 1;
+    const query = createQuery(clientData);
 
-    const products = await Product.find({})
+    const products = await Product.find(
+      clientData.length ? { $and: [...query] } : {}
+    )
       .skip((currentPage - 1) * itemsPerPage)
       .populate("category")
       .populate("subCategory")
@@ -69,35 +78,16 @@ exports.productsList = async (req, res) => {
       .limit(itemsPerPage)
       .exec();
 
-    console.log(`products`, products);
-    res.status(200).send(products);
+    const count = clientData.length
+      ? await Product.find({ $and: [...query] })
+          .countDocuments()
+          .exec()
+      : await Product.find({}).estimatedDocumentCount().exec();
+
+    res.status(200).send({ products, count });
   } catch (error) {
     console.log("error occurred at productsList function.", error);
   }
-};
-
-exports.filterByAttribute = async (req, res) => {
-  const { query } = req.body;
-  console.log(query);
-  // const clientData = req.body;
-  // console.log(`clientData`, clientData);
-  // const query = createQuery(clientData);
-  // console.log(`query`, query);
-  // if (!query.length) {
-  //   return await exports.products(req, res);
-  // }
-  // const products = await Product.find({ $and: [...query] })
-  //   .populate("category", "_id name")
-  //   .populate("subCategory", "_id name")
-  //   .populate("brand", "_id name")
-  //   .populate("postedBy", "_id name")
-  //   .exec();
-  // res.send(products);
-};
-
-exports.productsCount = async (req, res) => {
-  const total = await Product.find({}).estimatedDocumentCount().exec();
-  res.json(total);
 };
 
 exports.update = async (req, res) => {
@@ -185,23 +175,6 @@ exports.rating = async (req, res) => {
   } catch (error) {
     res.status(400).json("Rating failed.");
   }
-};
-
-exports.filterByAttribute = async (req, res) => {
-  const clientData = req.body;
-  console.log(`clientData`, clientData);
-  const query = createQuery(clientData);
-  console.log(`query`, query);
-  if (!query.length) {
-    return await exports.products(req, res);
-  }
-  const products = await Product.find({ $and: [...query] })
-    .populate("category", "_id name")
-    .populate("subCategory", "_id name")
-    .populate("brand", "_id name")
-    .populate("postedBy", "_id name")
-    .exec();
-  res.send(products);
 };
 
 function createQuery(clientData) {
