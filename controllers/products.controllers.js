@@ -57,18 +57,19 @@ exports.product = async (req, res) => {
 
 exports.productsList = async (req, res) => {
   try {
-    const { sort, order, page, productsPerPage } = req.body;
+    const { sort, order, page, itemsPerPage } = req.body;
     const currentPage = page || 1;
 
     const products = await Product.find({})
-      .skip((currentPage - 1) * productsPerPage)
+      .skip((currentPage - 1) * itemsPerPage)
       .populate("category")
       .populate("subCategory")
       .populate("brand")
       .sort([[sort, order]])
-      .limit(perPage)
+      .limit(itemsPerPage)
       .exec();
 
+    console.log(`products`, products);
     res.status(200).send(products);
   } catch (error) {
     console.log("error occurred at productsList function.", error);
