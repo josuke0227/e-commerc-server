@@ -55,14 +55,13 @@ exports.product = async (req, res) => {
   res.status(200).send(product);
 };
 
-exports.productList = async (req, res) => {
+exports.productsList = async (req, res) => {
   try {
-    const { sort, order, page } = req.body;
+    const { sort, order, page, productsPerPage } = req.body;
     const currentPage = page || 1;
-    const perPage = 3;
 
     const products = await Product.find({})
-      .skip((currentPage - 1) * perPage)
+      .skip((currentPage - 1) * productsPerPage)
       .populate("category")
       .populate("subCategory")
       .populate("brand")
@@ -72,8 +71,32 @@ exports.productList = async (req, res) => {
 
     res.status(200).send(products);
   } catch (error) {
-    console.log("error occured at productList function.", error);
+    console.log("error occurred at productsList function.", error);
   }
+};
+
+exports.filterByAttribute = async (req, res) => {
+  const { query } = req.body;
+  console.log(query);
+  // const clientData = req.body;
+  // console.log(`clientData`, clientData);
+  // const query = createQuery(clientData);
+  // console.log(`query`, query);
+  // if (!query.length) {
+  //   return await exports.products(req, res);
+  // }
+  // const products = await Product.find({ $and: [...query] })
+  //   .populate("category", "_id name")
+  //   .populate("subCategory", "_id name")
+  //   .populate("brand", "_id name")
+  //   .populate("postedBy", "_id name")
+  //   .exec();
+  // res.send(products);
+};
+
+exports.productsCount = async (req, res) => {
+  const total = await Product.find({}).estimatedDocumentCount().exec();
+  res.json(total);
 };
 
 exports.update = async (req, res) => {
