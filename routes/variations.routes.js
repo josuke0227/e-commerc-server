@@ -14,7 +14,7 @@ router.post("/", [validate(validateVariation)], create);
 router.put("/:slug", [validate(validateVariation)], update);
 router.delete("/:slug", remove);
 
-function validateVariation(variation) {
+function validateVariation(user) {
   const schema = Joi.object({
     name: Joi.string().min(1).max(50),
     instances: Joi.array().items(
@@ -22,7 +22,7 @@ function validateVariation(variation) {
     ),
   });
 
-  return schema.validate(variation);
+  return schema.validate(user);
 }
 
 module.exports = router;

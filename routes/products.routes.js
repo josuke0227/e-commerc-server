@@ -13,7 +13,6 @@ const {
   product,
   delete: deleteProduct,
   rating,
-  productsCount,
 } = require("../controllers/products.controllers");
 
 router.post("/", adminRoute, create);

@@ -29,6 +29,17 @@ const userSchema = new mongoose.Schema(
       data: String,
       default: "",
     },
+    address: {
+      address1: String,
+      address2: String,
+      city: String,
+      country: String,
+      isDefault: Boolean,
+      name: String,
+      phone: String,
+      postcode: String,
+      state: String,
+    },
     role: {
       type: String,
       default: "subscriber",

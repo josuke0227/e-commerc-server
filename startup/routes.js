@@ -12,6 +12,7 @@ const products = require("../routes/products.routes");
 const images = require("../routes/cloudinary.routes");
 const variations = require("../routes/variations.routes");
 const brands = require("../routes/brands.routes");
+const user = require("../routes/user.routes");
 
 const { NODE_ENV, CLIENT_URL } = process.env;
 
@@ -27,6 +28,7 @@ module.exports = (app) => {
     );
   app.use("/api/signup", signup);
   app.use("/api/signin", signin);
+  app.use("/api/user", user);
   app.use("/api/accountactivation", accountActivation);
   app.use("/api/forgotpassword", forgotPassword);
   app.use("/api/resetPassword", resetPassword);
