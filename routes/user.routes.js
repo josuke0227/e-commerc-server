@@ -3,27 +3,27 @@ const router = express.Router();
 const Joi = require("joi");
 const validate = require("../middleware/validate");
 const { update } = require("../controllers/user.controller");
+const userRoute = require("../middleware/userRoute");
 
-router.put("/:id", update);
-// router.put("/:id", [validate(validateUser)], update);
+router.put("/:id", [userRoute, validate(validateAddress)], update);
 
-function validateUser(variation) {
+function validateAddress(variation) {
   const schema = Joi.object({
-    address1: Joi.string().alphanum().min(1).max(50),
-    address2: Joi.ref("address1"),
-    city: Joi.string()
-      .pattern(/^[a-z, ]+$/)
-      .min(1)
-      .max(50),
-    country: Joi.ref("city"),
+    address1: Joi.string().min(1).max(255),
+    address2: Joi.string().min(1).max(255),
+    city: Joi.string().min(1).max(255),
+    country: Joi.string().min(1).max(255),
     isDefault: Boolean,
-    name: Joi.string()
-      .pattern(/^[a-z, ]+$/)
+    name: Joi.string().min(1).max(255),
+    phone: Joi.string()
+      .pattern(/^([0-9])\w+$/)
       .min(1)
-      .max(50),
-    phone: Joi.string().pattern(/^[a-z, ]+$/),
-    postcode: Joi.ref("phone"),
-    state: Joi.ref("city"),
+      .max(255),
+    postcode: Joi.string()
+      .pattern(/^([0-9])\w+$/)
+      .min(1)
+      .max(255),
+    state: Joi.string().min(1).max(255),
   });
 
   return schema.validate(variation);
