@@ -3,9 +3,11 @@ const router = express.Router();
 const Joi = require("joi");
 const validate = require("../middleware/validate");
 const { update } = require("../controllers/user.controller");
+const { getAddress } = require("../controllers/user.controller");
 const userRoute = require("../middleware/userRoute");
 
 router.put("/:id", [userRoute, validate(validateAddress)], update);
+router.get("/:id", [userRoute], getAddress);
 
 function validateAddress(variation) {
   const schema = Joi.object({
