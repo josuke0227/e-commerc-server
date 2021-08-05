@@ -1,12 +1,28 @@
 const User = require("../models/user");
 
-exports.update = async (req, res) => {
+exports.registerAddress = async (req, res) => {
+  const [address] = req.body;
+
   try {
     await User.findOneAndUpdate(
       {
         _id: req.params.id,
       },
-      { $push: { address: req.body } }
+      { $push: { address } }
+    );
+    res.status(200).send();
+  } catch (error) {
+    console.log("error occurred at updating user function.", error);
+  }
+};
+
+exports.changeDefaultAddress = async (req, res) => {
+  try {
+    await User.findOneAndUpdate(
+      {
+        _id: req.params.id,
+      },
+      { address: req.body }
     );
     res.status(200).send();
   } catch (error) {
