@@ -6,6 +6,8 @@ const {
   registerAddress,
   getAddress,
   changeDefaultAddress,
+  updateAddress,
+  deleteAddress,
 } = require("../controllers/user.controller");
 Joi.ObjectId = require("joi-objectid")(Joi);
 const userRoute = require("../middleware/userRoute");
@@ -19,6 +21,16 @@ router.put(
   "/address/changedefault/:id",
   [userRoute, validate(validateAddress)],
   changeDefaultAddress
+);
+router.put(
+  "/address/update/:id",
+  [userRoute, validate(validateAddress)],
+  updateAddress
+);
+router.put(
+  "/address/delete/:id",
+  [userRoute, validate(validateAddress)],
+  deleteAddress
 );
 router.get("/address/:id", [userRoute], getAddress);
 
